@@ -18,6 +18,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { Persistencia } from './services/models/persistencia';
 import { BuscaColaboradoresComponent } from './components/busca-colaboradores/busca-colaboradores.component';
 import { format } from 'date-fns';
+import { TokenService } from '../../core/services/token.service';
 
 @Component({
   selector: 'app-historicos-colaborador',
@@ -40,6 +41,7 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
   buscaColaboradoresComponent: BuscaColaboradoresComponent | undefined;
 
   private informacoesColaboradorService = inject(InformacoesColaboradorService);
+  private tokenService = inject(TokenService);
 
   carregandoInformacoes = signal(false);
   papelAdm: string;
@@ -52,9 +54,20 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
   }
 
   async ngAfterViewInit(): Promise<void> {
+    await this.checkInicializacao();
     await this.buscaPapeisSolicitante();
     this.inicializarBuscaColaboradores();
     this.carregandoInformacoes.set(false);
+  }
+
+  async checkInicializacao(): Promise<void> {
+    while (
+      !this.tokenService.token$.value?.accessToken ||
+      !this.tokenService.username
+    ) {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      this.tokenService.carregarToken();
+    }
   }
 
   inicializaComponente(): void {
