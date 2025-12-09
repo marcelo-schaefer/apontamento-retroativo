@@ -48,7 +48,8 @@ export class HistoricosColaboradorComponent implements OnInit, AfterViewInit {
 
   constructor(private messageService: MessageService) {}
 
-  ngOnInit(): void {
+  async ngOnInit(): Promise<void> {
+    await this.checkInicializacao();
     this.carregandoInformacoes.set(true);
     this.inicializaComponente();
   }
